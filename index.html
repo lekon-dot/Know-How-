@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0A0F1C"><meta name="description" content="Know How: learn, fix and master any IT device.">
+<title>Know How</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#0A0F1C;--p:#111A2E;--b:#1E2A47;--t:#F1F5FF;--s:#A3AECB;--teal:#00D4B8;--amb:#FFC83D;--rose:#FF6B88;--vio:#A394FF}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--t);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{height:100dvh;max-width:480px;margin:0 auto;display:flex;flex-direction:column}
+main{flex:1;overflow-y:auto;padding:20px 20px 16px;display:flex;flex-direction:column;gap:12px}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+h1,h2,p{margin:0}
+.card{background:var(--p);border:1px solid var(--b);border-radius:14px;padding:14px}
+.row{display:flex;align-items:center;gap:12px}.col{display:flex;flex-direction:column}
+.sub{font-size:12px;color:var(--s);font-weight:500}
+.ib{width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--b);background:var(--p);display:flex;align-items:center;justify-content:center}
+.ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.btn{height:44px;padding:0 20px;border:0;border-radius:10px;background:var(--teal);color:var(--bg);font-weight:800;font-size:14px}
+.btn2{height:44px;padding:0 20px;border:1px solid var(--b);border-radius:10px;background:var(--p);font-weight:700;font-size:14px}
+.ghost{background:transparent;border:0;color:var(--teal);font-weight:700;font-size:14px;height:44px;padding:0 6px}
+.pill{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--b);background:var(--p);font-size:13px;font-weight:600;white-space:nowrap}
+.pill[aria-pressed=true]{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+.scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;flex:none}
+.in{width:100%;background:var(--p);border:1px solid #2A3A60;border-radius:12px;height:48px;padding:0 14px;font-size:15px}
+textarea.in{height:auto;padding:12px;min-height:96px}
+.bar{height:4px;border-radius:2px;background:var(--b)}.bar i{display:block;height:4px;border-radius:2px;background:var(--teal)}
+.step{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.4}
+.step input,.chk{width:22px;height:22px;accent-color:#00D4B8;flex:none;margin:1px 0 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mod{height:68px;text-align:left;display:flex;align-items:center;gap:10px;padding:0 12px}
+.stats{display:flex}.stats>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border-left:1px solid var(--b)}.stats>div:first-child{border:0}
+.cats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cat{height:56px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:600}
+nav{height:calc(72px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:#0D1424;border-top:1px solid var(--b);display:flex;align-items:center;justify-content:space-around;flex:none}
+nav button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:500;color:var(--s);min-width:56px;min-height:48px;justify-content:center}
+nav button[aria-current=page]{color:var(--teal);font-weight:700}
+nav .plus{width:52px;height:52px;min-width:0;min-height:0;margin-top:-20px;border-radius:16px;background:var(--teal);color:var(--bg);box-shadow:0 6px 16px rgba(0,212,184,.25)}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:10}
+#sheet.on{display:flex}
+.sc{background:#0D1424;border:1px solid var(--b);border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px;max-height:90dvh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--teal);color:var(--bg);font-weight:700;font-size:14px;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90%}
+#toast.on{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+</style></head>
+<body><div id="app"></div><div id="sheet" role="dialog" aria-modal="true" aria-label="Dialog"></div><div id="toast" role="status" aria-live="polite"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const P={search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',laptop:'<rect x="4" y="5" width="16" height="11" rx="2"/><path d="M2 20h20"/>',phone:'<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',tablet:'<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M11 18h2"/>',console:'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r=".6"/><circle cx="18" cy="14" r=".6"/>',printer:'<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="9" rx="2"/><path d="M7 14h10v7H7z"/>',bat:'<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2"/>',wifi:'<path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><path d="M12 20h.01"/>',cpu:'<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>',book:'<path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z"/>',tool:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',bulb:'<path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.7.6 1 1.3 1 2.3h6c0-1 .3-1.7 1-2.3A7 7 0 0 0 12 2z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',heart:'<path d="M20.8 5.6a5.5 5.5 0 0 0-7.8 0L12 6.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',plus:'<path d="M12 5v14M5 12h14"/>',jr:'<path d="M4 3h14a2 2 0 0 1 2 2v16H6a2 2 0 0 1-2-2z"/><path d="M8 3v18M12 8h5"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',parts:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',back:'<path d="M15 18l-6-6 6-6"/>',trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>',play:'<path d="M7 4l13 8-13 8z"/>'};
+const ic=(n,s=20,f)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="${f?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]}</svg>`;
+const DEV={laptop:'Laptops',phone:'Phones',tablet:'Tablets',console:'Consoles',printer:'Printers'};
+const DEV1={laptop:'Computer',phone:'Phone',tablet:'Tablet',console:'Console',printer:'Printer'};
+const CAT={learn:['Learn','#00D4B8','book'],fix:['Fix','#FFC83D','tool'],discover:['Discover','#FF6B88','bulb']};
+const GUIDES=[
+{id:'wifi',t:'Connect a laptop to Wi-Fi',dev:'laptop',cat:'learn',free:1,k:'internet network wireless password online',tools:[],steps:['Click the network icon in the taskbar (Windows) or the menu bar (Mac).','Choose your network name from the list.','Type the Wi-Fi password exactly. It is case sensitive.','Tick "Connect automatically" if it is your own home network.','Wait for "Connected", then open a website to check it works.','Still stuck? Turn Wi-Fi off and on, restart the laptop, then try again.']},
+{id:'slow',t:'Fix a slow laptop',dev:'laptop',cat:'fix',free:0,k:'slow lag freezing performance speed',tools:[],steps:['Save your work and restart. This clears many temporary problems.','Close apps and browser tabs you are not using.','Open Task Manager (Windows) or Activity Monitor (Mac) and look for anything using lots of memory or CPU.','Turn off startup apps you do not need.','Free up disk space. Aim to keep at least 15% of your drive empty.','Install pending system updates, then run your built-in security scan.']},
+{id:'battery',t:'Look after your laptop battery',dev:'laptop',cat:'learn',free:1,k:'charging power health longevity',tools:[],steps:['Avoid leaving the battery at 0% or at 100% for long periods when you can.','Keep the laptop cool. Do not block the air vents.','Turn on the built-in battery saver when you are away from a charger.','Use the manufacturer charger, or a trusted replacement.','Check battery health in your system settings or the built-in battery report.','If capacity has dropped a lot, ask the maker about a replacement battery.']},
+{id:'shots',t:'Screenshot shortcuts you never knew',dev:'laptop',cat:'discover',free:0,k:'screenshot capture snip keyboard shortcut tip',tools:[],steps:['Windows: press Windows key + Shift + S, then drag to choose an area.','Windows: press Windows key + PrtScn to save the whole screen as a file.','Mac: press Command + Shift + 4, then drag to choose an area.','Mac: press Command + Shift + 5 for the screenshot and recording toolbar.','Paste the image straight into an email or document with Ctrl + V (Cmd + V on Mac).']},
+{id:'phish',t:'Spot a phishing email',dev:'laptop',cat:'learn',free:1,k:'scam security email fake safe',tools:[],steps:['Check the sender address, not just the name shown.','Be wary of urgent threats such as "your account will close today".','Hover over links to see where they really go before you click.','Never send passwords or bank details by email.','When unsure, go to the company site yourself, or phone them, instead of using the email.','Report it as phishing and delete it.']},
+{id:'storage',t:'Free up phone storage',dev:'phone',cat:'fix',free:1,k:'space full memory photos apps',tools:[],steps:['Open Settings and find Storage to see what is using space.','Delete apps you no longer use.','Back up photos and videos to the cloud or a computer, then remove local copies.','Clear app caches and downloads you do not need.','Empty the "Recently deleted" photos folder.','Restart the phone.']},
+{id:'split',t:'Use split screen on a tablet',dev:'tablet',cat:'discover',free:0,k:'multitask two apps side by side',tools:[],steps:['Open the first app.','iPad: swipe up gently to show the Dock, then drag a second app to the screen edge.','Android: open Recents, tap the app icon at the top of a card, choose Split screen.','Drag the divider to change how much room each app gets.','Drag the divider to the edge to close one side.']},
+{id:'pad',t:'Fix a controller that will not connect',dev:'console',cat:'fix',free:1,k:'gamepad pairing bluetooth wireless',tools:['USB cable','Spare batteries'],steps:['Charge the controller or fit fresh batteries.','Plug it in with a USB cable and see if it connects that way.','Restart the console fully, not just sleep mode.','Hold the controller pairing button until the light flashes.','Remove the old pairing in the console settings and pair again.','Update the controller and console software.']},
+{id:'print',t:'Printer says it is offline',dev:'printer',cat:'fix',free:0,k:'error offline not printing queue driver',tools:['USB cable','Spare ink or toner'],steps:['Check the printer is on and shows no error lights.','Make sure the printer and your device are on the same Wi-Fi network.','Restart the printer and your device.','Clear the print queue of stuck jobs.','Set the printer as default and untick "Use printer offline" if it is shown.','Remove and re-add the printer, or reinstall its driver.']}];
+const KEY='knowhow.v1';
+let S={fav:[],prog:{},last:null,journal:[],parts:[],mine:[],plus:false,dev:null};
+try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let U={view:'home',q:'',dev:'',cat:'',tab:'',gid:null},H=[],T,DP;
+const all=()=>[...S.mine.map(g=>({...g,mine:1,free:1})),...GUIDES];
+const byId=id=>all().find(g=>g.id===id);
+const locked=g=>!g.free&&!S.plus;
+function detect(){const u=navigator.userAgent;let os='',dev='laptop';
+if(/iPhone/.test(u)){os='iOS';dev='phone'}else if(/iPad/.test(u)){os='iPadOS';dev='tablet'}else if(/Android/.test(u)){os='Android';dev=/Mobile/.test(u)?'phone':'tablet'}else if(/Windows/.test(u))os='Windows';else if(/CrOS/.test(u))os='ChromeOS';else if(/Mac/.test(u))os='macOS';else if(/Linux/.test(u))os='Linux';
+return{os,dev}}
+const D=detect(),myDev=()=>S.dev||D.dev;
+const cur=()=>{const g=byId(S.last);return g&&(S.prog[g.id]||[]).length<g.steps.length?g:byId('wifi')};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.i);toast.i=setTimeout(()=>t.classList.remove('on'),2500)}
+function sheet(h){const s=$('#sheet');if(!h){s.classList.remove('on');s.innerHTML='';return}s.innerHTML=`<div class="sc">${h}</div>`;s.classList.add('on');const f=s.querySelector('input:not([type=checkbox]),textarea,button');f&&f.focus()}
+const item=g=>{const c=CAT[g.cat],f=S.fav.includes(g.id);return`<button class="card row" style="width:100%;text-align:left" data-act="open" data-id="${g.id}"><span class="ico" style="background:${c[1]}24;color:${c[1]}">${ic(c[2])}</span><span class="col" style="flex:1;gap:2px"><b style="font-size:15px">${esc(g.t)}</b><span class="sub">${DEV1[g.dev]} · ${c[0]}${g.mine?' · Yours':''}${locked(g)?' · Plus':''}</span></span><span style="color:${f?'var(--rose)':'var(--s)'}">${locked(g)?ic('lock',18):f?ic('heart',18,1):''}</span></button>`};
+const head=(t,x='')=>`<div class="row"><button class="ib" data-act="back" aria-label="Back">${ic('back')}</button><h1 style="font-size:22px;flex:1;line-height:1.2">${t}</h1>${x}</div>`;
+function home(){const d=myDev(),g=cur(),n=(S.prog[g.id]||[]).length,tip=byId('shots'),st=(i,l,id)=>`<div>${ic(i,18)}<span class="sub">${l}</span><b id="${id}" style="font-size:13px">…</b></div>`;
+return`<div class="row" style="justify-content:space-between"><div class="row"><div class="ico" style="background:#00D4B8;color:#0A0F1C;width:36px;height:36px">${ic('bulb',20)}</div><b style="font-size:19px">Know How</b></div><button class="ib" data-act="sheet" data-s="account" aria-label="Account and settings">${ic('user')}</button></div>
+<h1 style="font-size:25px;line-height:1.2;font-weight:800">How can we help today?</h1>
+<button class="in row" data-act="search" style="color:var(--s);text-align:left;cursor:text">${ic('search')}<span>Search devices, guides or error codes</span></button>
+<div class="card col" style="gap:12px"><div class="row"><button class="row" data-act="lib" data-dev="${d}" style="flex:1;background:none;border:0;text-align:left;padding:0"><span class="ico" style="width:44px;height:44px;background:rgba(0,212,184,.14);color:var(--teal)">${ic(d,24)}</span><span class="col"><span class="sub">Your device</span><b style="font-size:16px">${DEV1[d]}${!S.dev&&D.os?' · '+D.os:''}</b></span></button><button class="ghost" data-act="cycle">Change</button></div>
+<div class="stats">${st('bat','Battery','s-bat')}${st('wifi','Network','s-net')}${st('cpu','Memory','s-mem')}${st('laptop','Screen','s-scr')}</div></div>
+<div class="grid2"><button class="card mod" data-act="lib" data-cat="learn"><span class="ico" style="background:rgba(0,212,184,.14);color:var(--teal)">${ic('book')}</span><span class="col"><b>Learn</b><span class="sub">Set up and use it</span></span></button><button class="card mod" data-act="lib" data-cat="fix"><span class="ico" style="background:rgba(255,200,61,.14);color:var(--amb)">${ic('tool')}</span><span class="col"><b>Fix</b><span class="sub">Troubleshoot faults</span></span></button>
+<button class="card mod" data-act="lib" data-cat="discover"><span class="ico" style="background:rgba(255,107,136,.14);color:var(--rose)">${ic('bulb')}</span><span class="col"><b>Discover</b><span class="sub">Hidden features</span></span></button><button class="card mod" data-act="go" data-v="parts"><span class="ico" style="background:rgba(163,148,255,.14);color:var(--vio)">${ic('parts')}</span><span class="col"><b>Parts and tools</b><span class="sub">Plan your repair</span></span></button></div>
+<div class="card row"><div class="col" style="flex:1;gap:6px"><div class="col"><span class="sub">${n?`Continue · Step ${n+1} of ${g.steps.length}`:`Start here · ${g.steps.length} steps`}</span><b style="font-size:15px">${esc(g.t)}</b></div><div class="bar"><i style="width:${n/g.steps.length*100}%"></i></div></div><button class="btn" data-act="resume">${n?'Resume':'Start'}</button></div>
+<div class="col" style="gap:8px"><b style="font-size:15px">Browse by device</b><div class="cats">${Object.keys(DEV).map(k=>`<button class="card cat" data-act="lib" data-dev="${k}"><span style="color:var(--teal);display:flex">${ic(k)}</span>${DEV[k]}</button>`).join('')}</div></div>
+<div class="card row"><div class="col" style="flex:1;gap:3px"><span class="sub" style="color:var(--amb);font-weight:700">Little-known tip</span><b style="font-size:15px;line-height:1.2">${tip.t}</b><span class="sub">${S.plus?'Unlocked with Plus':'Plus guide · '}${S.plus?'':`<span style="display:inline-flex;vertical-align:-2px">${ic('lock',13)}</span>`}</span></div><button class="ib" style="background:var(--amb);color:#0A0F1C;border:0;border-radius:22px" data-act="open" data-id="shots" aria-label="Open tip">${ic('play',18,1)}</button></div>`}
+function lib(){const pl=(k,v,l)=>`<button class="pill" aria-pressed="${U[k]===v}" data-act="f" data-k="${k}" data-v="${v}">${l}</button>`;
+return head(U.tab==='tips'?'Tips and hidden features':'Guides')+`<label class="sr" for="q">Search guides</label><input id="q" class="in" type="search" placeholder="Search devices, guides or error codes" value="${esc(U.q)}" autocomplete="off">
+<div class="scroll">${pl('cat','','All')}${Object.keys(CAT).map(k=>pl('cat',k,CAT[k][0])).join('')}</div><div class="scroll">${pl('dev','','Any device')}${Object.keys(DEV).map(k=>pl('dev',k,DEV[k])).join('')}</div><div id="list" class="col" style="gap:10px">${list()}</div>`}
+function list(){const w=U.q.toLowerCase().split(/\s+/).filter(Boolean);const r=all().filter(g=>(!U.cat||g.cat===U.cat)&&(!U.dev||g.dev===U.dev)&&w.every(x=>(g.t+' '+DEV[g.dev]+' '+g.cat+' '+(g.k||'')).toLowerCase().includes(x)));
+return r.length?r.map(item).join(''):'<p class="sub">No guides found. Try another search, or add your own with the + button.</p>'}
+function guide(){const g=byId(U.gid);if(!g)return'';const dn=S.prog[g.id]||[],n=g.steps.length,f=S.fav.includes(g.id);
+return head(esc(g.t),`<button class="ib" data-act="fav" data-id="${g.id}" aria-pressed="${f}" aria-label="${f?'Remove from favourites':'Save to favourites'}" style="color:${f?'var(--rose)':'var(--t)'}">${ic('heart',20,f)}</button>`)+`<div class="sub">${DEV1[g.dev]} · ${CAT[g.cat][0]} · ${n} steps · Works offline</div>
+<div class="card col" style="gap:8px"><b id="pt" style="font-size:14px">${dn.length} of ${n} steps done</b><div class="bar"><i id="pb" style="width:${dn.length/n*100}%"></i></div></div>
+${g.tools&&g.tools.length?`<div class="card col" style="gap:8px"><b style="font-size:14px">You may need</b><span class="sub" style="font-size:14px">${g.tools.map(esc).join(', ')}</span><button class="btn2" data-act="addtools" data-id="${g.id}">Add to parts list</button></div>`:''}
+${g.steps.map((s,i)=>`<label class="card step"><input type="checkbox" data-step="${i}" ${dn.includes(i)?'checked':''}><span><b>Step ${i+1}</b><br>${esc(s)}</span></label>`).join('')}
+<button class="btn" data-act="logj" data-id="${g.id}">Log this in my journal</button>`}
+function saved(){const r=all().filter(g=>S.fav.includes(g.id));return`<h1 style="font-size:22px">Saved guides</h1>`+(r.length?r.map(item).join(''):'<p class="sub">Nothing saved yet. Tap the heart on a guide, or just keep one open for 3 minutes and it saves itself.</p>')}
+function journal(){return`<div class="row"><h1 style="font-size:22px;flex:1">Repair journal</h1><button class="btn" data-act="sheet" data-s="journal">Add entry</button></div>`+(S.journal.length?S.journal.map((j,i)=>`<div class="card col" style="gap:4px"><div class="row"><b style="flex:1;font-size:15px">${esc(j.issue)}</b><button class="ib" style="width:44px;height:44px;border:0;background:none;color:var(--s)" data-act="delj" data-i="${i}" aria-label="Delete entry">${ic('trash',18)}</button></div><span class="sub">${esc(j.dev)} · ${new Date(j.d).toLocaleDateString()}</span><span style="font-size:14px;line-height:1.4">${esc(j.fix||'No notes added.')}</span></div>`).join(''):'<p class="sub">Keep a record of what went wrong and what fixed it, so you can solve it faster next time.</p>')}
+function parts(){return head('Parts and tools')+`<form id="fp" class="row"><label class="sr" for="pi">Add a part or tool</label><input id="pi" class="in" placeholder="e.g. Phillips screwdriver" maxlength="60" required><button class="btn">Add</button></form>`+(S.parts.length?S.parts.map((p,i)=>`<div class="card row"><input class="chk" type="checkbox" data-part="${i}" ${p.done?'checked':''} aria-label="Got ${esc(p.t)}"><span style="flex:1;${p.done?'text-decoration:line-through;color:var(--s)':''}">${esc(p.t)}</span><button class="ib" style="border:0;background:none;color:var(--s)" data-act="delp" data-i="${i}" aria-label="Remove ${esc(p.t)}">${ic('trash',18)}</button></div>`).join(''):'<p class="sub">Add the tools and parts you need before you start a repair, then tick them off.</p>')}
+const navBtn=(v,i,l,on)=>`<button data-act="tab" data-v="${v}" ${on?'aria-current="page"':''}>${ic(i,22)}${l}</button>`;
+function render(keep){const m=$('main'),st=m&&keep?m.scrollTop:0,v=U.view;
+const h={home,library:lib,guide,saved,journal,parts}[v]();
+$('#app').innerHTML=`<main>${h}</main><nav aria-label="Main">${navBtn('home','home','Home',v==='home')}${navBtn('saved','heart','Saved',v==='saved')}<button class="plus" data-act="sheet" data-s="create" aria-label="Create a guide">${ic('plus',26)}</button>${navBtn('journal','jr','Journal',v==='journal')}${navBtn('tips','cpu','Tips',v==='library'&&U.tab==='tips')}</nav>`;
+$('main').scrollTop=st;if(v==='home')stats()}
+function stats(){const s=(id,t)=>{const e=$('#'+id);e&&(e.textContent=t)},c=navigator.connection;
+s('s-net',navigator.onLine?(c&&c.effectiveType?c.effectiveType.toUpperCase():'Online'):'Offline');s('s-mem',navigator.deviceMemory?'~'+navigator.deviceMemory+' GB':'N/A');s('s-scr',screen.width+'×'+screen.height);s('s-bat','N/A');
+navigator.getBattery&&navigator.getBattery().then(b=>s('s-bat',Math.round(b.level*100)+'%'+(b.charging?' ⚡':''))).catch(()=>{})}
+function go(v,x={},push=1){clearTimeout(T);push&&H.push({...U});Object.assign(U,{view:v},x);render()}
+function tab(v){clearTimeout(T);H.length=0;Object.assign(U,{q:'',dev:'',cat:'',tab:'',gid:null,view:v});if(v==='tips')Object.assign(U,{view:'library',cat:'discover',tab:'tips'});render()}
+function open(id){const g=byId(id);if(!g)return;if(locked(g))return sheet(`<h2>${esc(g.t)}</h2><p>This is a Plus guide. Plus unlocks every full guide and tip.</p><p class="sub">Demo build: no payment is taken. Switching Plus on just unlocks the content on this device.</p><button class="btn" data-act="plus" data-id="${g.id}">Try Plus (demo)</button><button class="btn2" data-act="close">Not now</button>`);
+S.last=id;save();go('guide',{gid:id});T=setTimeout(()=>{if(U.view==='guide'&&U.gid===id&&!S.fav.includes(id)){S.fav.push(id);save();toast('Saved to favourites');render(1)}},180000)}
+function back(){clearTimeout(T);const p=H.pop();p?Object.assign(U,p):Object.assign(U,{view:'home'});render()}
+const opts=o=>Object.keys(o).map(k=>`<option value="${k}">${Array.isArray(o[k])?o[k][0]:o[k]}</option>`).join('');
+const fld=(l,x)=>`<label class="col" style="gap:6px"><span class="sub">${l}</span>${x}</label>`;
+const SH={create:()=>`<h2>Create a guide</h2><p class="sub">Saved on this device. Sharing with other people needs an online back end, which is a future step.</p><form id="fcr" class="col" style="gap:12px">${fld('Title','<input class="in" name="t" required maxlength="80">')}${fld('Device',`<select class="in" name="dev">${opts(DEV1)}</select>`)}${fld('Type',`<select class="in" name="cat">${opts(CAT)}</select>`)}${fld('Steps (one per line)','<textarea class="in" name="s" required></textarea>')}<button class="btn">Save guide</button><button type="button" class="btn2" data-act="close">Cancel</button></form>`,
+journal:(g)=>`<h2>New journal entry</h2><form id="fj" class="col" style="gap:12px">${fld('Device',`<input class="in" name="dev" required maxlength="60" value="${esc(g?DEV1[g.dev]:DEV1[myDev()])}">`)}${fld('What went wrong?',`<input class="in" name="issue" required maxlength="100" value="${esc(g?g.t:'')}">`)}${fld('What fixed it?','<textarea class="in" name="fix"></textarea>')}<button class="btn">Save entry</button><button type="button" class="btn2" data-act="close">Cancel</button></form>`,
+account:()=>`<h2>Settings</h2><label class="card row"><input class="chk" id="plus" type="checkbox" ${S.plus?'checked':''}><span class="col"><b>Know How Plus (demo)</b><span class="sub">Unlock every guide. No payment is taken.</span></span></label>${DP?'<button class="btn" data-act="install">Install Know How on this device</button>':''}<button class="btn2" data-act="reset">Reset all my data</button><button class="btn2" data-act="close">Close</button>`};
+function act(a,d){switch(a){
+case'tab':tab(d.v);break;
+case'go':go(d.v);break;
+case'lib':go('library',{q:'',dev:d.dev||'',cat:d.cat||'',tab:''});break;
+case'search':go('library',{q:'',dev:'',cat:'',tab:''});setTimeout(()=>{const q=$('#q');q&&q.focus()},0);break;
+case'f':U[d.k]=U[d.k]===d.v?'':d.v;render(1);break;
+case'back':back();break;
+case'open':open(d.id);break;
+case'resume':open(cur().id);break;
+case'cycle':{const k=Object.keys(DEV),i=k.indexOf(myDev());S.dev=k[(i+1)%k.length];save();render(1)}break;
+case'fav':{const i=S.fav.indexOf(d.id);i<0?S.fav.push(d.id):S.fav.splice(i,1);save();render(1)}break;
+case'addtools':{const g=byId(d.id);g.tools.forEach(t=>{if(!S.parts.some(p=>p.t===t))S.parts.push({t,done:0})});save();toast('Added to your parts list')}break;
+case'logj':sheet(SH.journal(byId(d.id)));break;
+case'sheet':sheet(SH[d.s]());break;
+case'close':sheet();break;
+case'plus':S.plus=true;save();sheet();open(d.id);break;
+case'delj':S.journal.splice(+d.i,1);save();render(1);break;
+case'delp':S.parts.splice(+d.i,1);save();render(1);break;
+case'install':DP.prompt();DP=null;sheet();break;
+case'reset':if(confirm('Delete all saved guides, progress, journal entries and your own guides from this device?')){S={fav:[],prog:{},last:null,journal:[],parts:[],mine:[],plus:false,dev:null};save();sheet();tab('home');toast('Data reset')}break}}
+document.addEventListener('click',e=>{if(e.target.id==='sheet')return sheet();const b=e.target.closest('[data-act]');b&&act(b.dataset.act,b.dataset)});
+document.addEventListener('keydown',e=>{e.key==='Escape'&&sheet()});
+document.addEventListener('input',e=>{if(e.target.id==='q'){U.q=e.target.value;$('#list').innerHTML=list()}});
+document.addEventListener('change',e=>{const t=e.target;
+if(t.dataset.step!==undefined){const g=byId(U.gid),a=S.prog[g.id]||[],i=+t.dataset.step;S.prog[g.id]=t.checked?[...new Set([...a,i])]:a.filter(x=>x!==i);S.last=g.id;save();const n=S.prog[g.id].length;$('#pt').textContent=n+' of '+g.steps.length+' steps done';$('#pb').style.width=n/g.steps.length*100+'%';n===g.steps.length&&toast('Guide complete. Nice work!')}
+if(t.dataset.part!==undefined){S.parts[+t.dataset.part].done=t.checked?1:0;save();render(1)}
+if(t.id==='plus'){S.plus=t.checked;save();toast(S.plus?'Plus unlocked (demo)':'Plus turned off');render(1)}});
+document.addEventListener('submit',e=>{e.preventDefault();const f=e.target,v=n=>f.elements[n]?f.elements[n].value.trim():'';
+if(f.id==='fcr'){const g={id:'u'+Date.now(),t:v('t'),dev:v('dev'),cat:v('cat'),k:'',tools:[],steps:v('s').split('\n').map(x=>x.trim()).filter(Boolean)};S.mine.unshift(g);save();sheet();toast('Guide saved');open(g.id)}
+if(f.id==='fj'){S.journal.unshift({d:Date.now(),dev:v('dev'),issue:v('issue'),fix:v('fix')});save();sheet();toast('Entry saved');tab('journal')}
+if(f.id==='fp'){const i=$('#pi');S.parts.push({t:i.value.trim(),done:0});save();render(1);$('#pi').focus()}});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();DP=e});
+window.addEventListener('online',()=>U.view==='home'&&stats());window.addEventListener('offline',()=>U.view==='home'&&stats());
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+render();
+</script></body></html>
